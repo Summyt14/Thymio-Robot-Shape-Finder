@@ -1,3 +1,19 @@
+import os
+import importlib
+
+if importlib.util.find_spec("cv2") is None:
+    os.system('pip install opencv-python')
+
+if importlib.util.find_spec("thymiodirect") is None:
+    os.system('pip install thymiodirect')
+
+if importlib.util.find_spec("pygame") is None:
+    os.system('pip install pygame')
+
+if importlib.util.find_spec("numpy") is None:
+    os.system('pip install numpy')
+
+
 import cv2
 import pygame
 import numpy as np
