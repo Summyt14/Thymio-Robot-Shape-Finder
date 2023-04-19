@@ -9,6 +9,8 @@ class ThymioController:
         self.th = None
         self.node_id = None
         self.toggle_light = False
+        self.left_motor_speed = 0
+        self.right_motor_speed = 0
 
     def connect(self):
         try:
@@ -43,13 +45,12 @@ class ThymioController:
         
         angle = math.atan2(turn_input, forward_input)
         speed = int(math.sqrt(forward_input**2 + turn_input**2) * 500)
-        left_speed = int(speed * math.cos(angle))
-        right_speed = int(speed * math.sin(angle))
-        print("Left:", left_speed, "/ Right:", right_speed)
+        self.left_motor_speed = int(speed * math.cos(angle))
+        self.right_motor_speed = int(speed * math.sin(angle))
 
         if self.is_connected:
-            self.th[self.node_id]["motor.left.target"] = left_speed
-            self.th[self.node_id]["motor.right.target"] = right_speed
+            self.th[self.node_id]["motor.left.target"] = self.left_motor_speed
+            self.th[self.node_id]["motor.right.target"] = self.right_motor_speed
             self.th[self.node_id]["leds.top"] = [0, 0, 32] if self.toggle_light else [0, 0, 0]
 
     def run(self, pressed_keys: dict):
