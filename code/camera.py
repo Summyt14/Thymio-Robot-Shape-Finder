@@ -9,6 +9,15 @@ ERROR = "Error"
 
 
 class Camera:
+    """
+    Camera class for connecting to an IP camera and processing its frames.
+
+    Attributes:
+        DISCONNECTED (str): A string constant representing the disconnected status.
+        CONNECTED (str): A string constant representing the connected status.
+        CONNECTING (str): A string constant representing the connecting status.
+        ERROR (str): A string constant representing the error status.
+    """
     def __init__(self) -> None:
         self.video_url = ""
         self.status = DISCONNECTED
@@ -18,6 +27,12 @@ class Camera:
         self.lock = threading.Lock()
 
     def connect(self, ip: str):
+        """
+        Connects to a camera via IP address and starts a new thread to handle the frames.
+
+        Args:
+            ip (str): The IP address of the camera
+        """
         self.video_url = "http://%s:4747/video" % (ip)
         self.status = CONNECTING
         thread = threading.Thread(
@@ -25,6 +40,15 @@ class Camera:
         thread.start()
 
     def apply_operators(self, frame):
+        """
+        Applies image processing operators to the given frame.
+
+        Args:
+            frame: The original video frame
+
+        Returns:
+            A tuple containing the original and processed frames.
+        """
         # Grayscale, Otsu's threshold
         gray =  cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         blur = cv2.medianBlur(gray, 9)
@@ -69,6 +93,12 @@ class Camera:
         return frame, threshold
 
     def run_thread(self, video_url: str):
+        """
+        Runs the thread for capturing and processing frames from the IP camera.
+
+        Args:
+            video_url (str): The URL of the video stream from the camera.
+        """
         cap = cv2.VideoCapture(video_url)
         if not cap.isOpened():
             self.status = ERROR
@@ -90,6 +120,12 @@ class Camera:
                 self.processed_frame_queue.put(processed_frame)
 
     def run(self):
+        """
+        Returns the original and processed frames from the camera.
+    
+        Returns:
+            A tuple containing the original and processed frames.
+        """
         if not self.original_frame_queue.empty() and not self.processed_frame_queue.empty():
             original_frame = self.original_frame_queue.get()
             processed_frame = self.processed_frame_queue.get()
@@ -100,6 +136,9 @@ class Camera:
             return None, None
 
     def disconnect(self):
+        """
+        Disconnects from the IP camera.
+        """
         self.status = DISCONNECTED
         if self.thread is not None:
             self.thread.join()

@@ -1,6 +1,7 @@
 import os
 import importlib
 
+# Install the required libraries if they are not in the system yet
 if importlib.util.find_spec("cv2") is None:
     os.system('pip install opencv-python')
 
@@ -64,9 +65,9 @@ def handle_inputs():
 while True:
     handle_inputs()
 
-    # Draw the screen
     screen.fill((255, 255, 255))
 
+    # Show the frame to enter the camera IP address
     if camera.status in [DISCONNECTED, ERROR, CONNECTING]:
         pygame.draw.rect(screen, (0, 0, 0), pygame.Rect(5, 30, 300, 32), 2)
         enter_ip_text = font.render("Enter the camera's IP address then press RETURN", True, (0, 0, 0))
@@ -88,6 +89,7 @@ while True:
         screen.blit(wasd_text, (10, window_size[1] - 60))
         screen.blit(quit_text, (10, window_size[1] - 30))
 
+        # Get and show the original and processed frames from the camera
         original_frame, processed_frame = camera.run()
         if original_frame is not None and processed_frame is not None:
             color_surface = pygame.surfarray.make_surface(original_frame)

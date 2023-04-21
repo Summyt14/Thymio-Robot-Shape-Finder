@@ -2,6 +2,18 @@ from node import *
 
 
 class Selector(Node):
+    """
+    A class representing a selector node in a behavior tree.
+
+    The selector node executes its child nodes in order until one of them returns either SUCCESS or
+    RUNNING. If a child node returns RUNNING, the selector node returns RUNNING and will continue
+    to execute the next child node on the next evaluation. If a child node returns SUCCESS, the
+    selector node returns SUCCESS and will not execute any further child nodes. If all child nodes
+    return FAILURE, the selector node returns FAILURE.
+
+    Args:
+        node_list (list[Node]): The list of child nodes to execute.
+    """
     def __init__(self, node_list: list[Node]) -> None:
         super().__init__()
         self.node_list = node_list

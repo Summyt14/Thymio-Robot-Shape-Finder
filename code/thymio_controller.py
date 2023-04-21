@@ -6,6 +6,9 @@ from behavior_tree.nodes import *
 
 
 class ThymioController:
+    """
+    This class is the brain of the robot. Its responsible for translating the information it receives into physical behaviours.
+    """
     def __init__(self) -> None:
         self.is_connected = False
         self.th = None
@@ -13,17 +16,31 @@ class ThymioController:
         self.toggle_light = False
         self.left_motor_speed = 0
         self.right_motor_speed = 0
+        self.pressed_keys = dict()
         self.top_node = None
 
     def construct_behavior_tree(self) -> Node:
-        has_object_front = HasObjectInFront(self.th, self.node_id)
-        move_back = MoveBack(self.th, self.node_id)
-        avoid_object_seq = Sequence(list(has_object_front, move_back))
+        """
+        Constructs the behavior tree for the robot.
+
+        Returns:
+            Node: The top-level node of the behavior tree.
+        """
+        has_object_front = HasObjectInFront(self, 4000)
+        move_robot_away_obstacle = MoveRobotAwayObstacle(self, 250, 2000)
+        rotate_robot = MoveRobotTime(self, 100, 200, 1)
+        avoid_object_seq = Sequence(list(has_object_front, move_robot_away_obstacle, rotate_robot))
 
         top_node = Selector(list(avoid_object_seq))
         return top_node
 
     def connect(self) -> bool:
+        """
+        Connects to the Thymio robot via serial port.
+
+        Returns:
+            bool: True if the connection is successful, False otherwise.
+        """
         try:
             port = Connection.serial_default_port()
             self.th = Thymio(serial_port=port, on_connect=lambda id: print(f"{id} is connected"))
@@ -36,6 +53,9 @@ class ThymioController:
             return False
 
     def disconnect(self) -> None:
+        """
+        Disconnects from the Thymio robot.
+        """
         # TODO i dont think this is the right function to disconnect
         if self.is_connected:
             self.th.disconnect()
@@ -43,6 +63,12 @@ class ThymioController:
 
     # TODO this function needs to be convert into a node class 
     def handle_inputs(self, pressed_keys: dict) -> None:
+        """
+        Handles input from the keyboard and converts it into movement commands for the Thymio robot.
+
+        Args: 
+            pressed_keys (dict): A dictionary containing the keys that are currently pressed on the keyboard
+        """
         forward_input = turn_input = 0
         for key in pressed_keys.keys():
             if key == pygame.K_w:
@@ -67,5 +93,6 @@ class ThymioController:
             self.th[self.node_id]["leds.top"] = [0, 0, 32] if self.toggle_light else [0, 0, 0]
 
     def run(self, pressed_keys: dict) -> None:
+        self.pressed_keys = pressed_keys
         self.top_node.evaluate()
         # self.handle_inputs(pressed_keys)

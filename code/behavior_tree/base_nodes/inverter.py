@@ -2,6 +2,16 @@ from node import *
 
 
 class Inverter(Node):
+    """
+    A class representing an inverter node in a behavior tree.
+
+    The inverter node inverts the result of its child node. If the child node returns FAILURE,
+    the inverter node returns SUCCESS. If the child node returns SUCCESS, the inverter node
+    returns FAILURE. If the child node returns RUNNING, the inverter node also returns RUNNING.
+
+    Args:
+        node (Node): The child node to invert.
+    """
     def __init__(self, node: Node) -> None:
         super().__init__()
         self.node = node
