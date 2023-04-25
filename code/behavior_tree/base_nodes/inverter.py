@@ -1,4 +1,4 @@
-from node import *
+from .base_node import *
 
 
 class Inverter(Node):
@@ -12,18 +12,23 @@ class Inverter(Node):
     Args:
         node (Node): The child node to invert.
     """
+
     def __init__(self, node: Node) -> None:
         super().__init__()
         self.node = node
 
     def evaluate(self) -> int:
         evaluate_node = self.node.evaluate()
-        
+
         if evaluate_node == RUNNING:
             self._node_state = RUNNING
+            self._running_node = self.node.get_running_node()
         elif evaluate_node == SUCCESS:
             self._node_state = FAILURE
         else:
             self._node_state = SUCCESS
 
         return self._node_state
+
+    def get_running_node(self) -> Node:
+        return self._running_node

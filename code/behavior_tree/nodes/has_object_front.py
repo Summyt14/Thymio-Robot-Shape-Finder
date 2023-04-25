@@ -1,5 +1,5 @@
-from behavior_tree.base_nodes.node import *
-from thymio_controller import ThymioController
+from behavior_tree.base_nodes.base_node import *
+from thymiodirect import Thymio
 
 
 class HasObjectInFront(Node):
@@ -10,18 +10,18 @@ class HasObjectInFront(Node):
     detect an object within a certain distance. Otherwise, the node returns FAILURE.
 
     Args:
-        controller (ThymioController): The controller for the Thymio robot.
+        th (Thymio): The Thymio robot.
+        first_node (str): The main node id.
         distance_check (int): The distance threshold to consider an obstacle.
     """
-    def __init__(self, controller: ThymioController, distance_check: int) -> None:
+    def __init__(self, th: Thymio, first_node: str, distance_check: int) -> None:
         super().__init__()
-        self.controller = controller
-        self.th = controller.th
-        self.node_id = controller.node_id
+        self.th = th
+        self.first_node = first_node
         self.distance_check = distance_check
 
     def evaluate(self) -> int:
-        sensors = self.th[self.node_id]["prox.horizontal"]
+        sensors = self.th[self.first_node]["prox.horizontal"]
         if sensors[0] > self.distance_check \
                 or sensors[1] > self.distance_check \
                 or sensors[2] > self.distance_check \
@@ -32,3 +32,6 @@ class HasObjectInFront(Node):
 
         self._node_state = FAILURE
         return self._node_state
+    
+    def get_running_node(self):
+        return self

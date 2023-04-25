@@ -14,6 +14,7 @@ class Node:
     """
     def __init__(self) -> None:
         self._node_state = SUCCESS
+        self._running_node = None
 
     def evaluate(self) -> int:
         """
@@ -23,3 +24,12 @@ class Node:
             int: The state of the node, either FAILURE, RUNNING, or SUCCESS.
         """
         pass
+
+    def get_running_node(self):
+        """
+        Get the current running node.
+
+        Returns:
+            Node: The current running node.
+        """
+        return self._running_node

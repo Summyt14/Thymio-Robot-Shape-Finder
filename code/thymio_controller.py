@@ -1,18 +1,18 @@
 import pygame
 import math
-from thymiodirect import Connection, Thymio
 from behavior_tree.base_nodes import *
 from behavior_tree.nodes import *
+from thymiodirect import Connection, Thymio
 
 
 class ThymioController:
     """
-    This class is the brain of the robot. Its responsible for translating the information it receives into physical behaviours.
+    This class is the brain of the robot. It's responsible for translating the information it receives into physical behaviours.
     """
     def __init__(self) -> None:
         self.is_connected = False
         self.th = None
-        self.node_id = None
+        self.first_node = None
         self.toggle_light = False
         self.left_motor_speed = 0
         self.right_motor_speed = 0
@@ -26,12 +26,13 @@ class ThymioController:
         Returns:
             Node: The top-level node of the behavior tree.
         """
-        has_object_front = HasObjectInFront(self, 4000)
-        move_robot_away_obstacle = MoveRobotAwayObstacle(self, 250, 2000)
-        rotate_robot = MoveRobotTime(self, 100, 200, 1)
+        has_object_front = HasObjectInFront(self.th, self.first_node, 4000)
+        move_robot_away_obstacle = MoveRobotAwayObstacle(self.th, self.first_node, 250, 2000)
+        rotate_robot = MoveRobotTime(self.th, self.first_node, 100, 200, 1)
         avoid_object_seq = Sequence(list(has_object_front, move_robot_away_obstacle, rotate_robot))
+        idle = Idle()
 
-        top_node = Selector(list(avoid_object_seq))
+        top_node = Selector(list(avoid_object_seq, idle))
         return top_node
 
     def connect(self) -> bool:
@@ -43,9 +44,9 @@ class ThymioController:
         """
         try:
             port = Connection.serial_default_port()
-            self.th = Thymio(serial_port=port, on_connect=lambda id: print(f"{id} is connected"))
+            self.th = Thymio(serial_port=port, on_connect=lambda name: print(f"{name} is connected"))
             self.th.connect()
-            self.node_id = self.th.first_node()
+            self.first_node = self.th.first_node()
             self.is_connected = True
             self.top_node = self.construct_behavior_tree()
             return True
@@ -88,11 +89,13 @@ class ThymioController:
         self.right_motor_speed = int(speed * math.sin(angle))
 
         if self.is_connected:
-            self.th[self.node_id]["motor.left.target"] = self.left_motor_speed
-            self.th[self.node_id]["motor.right.target"] = self.right_motor_speed
-            self.th[self.node_id]["leds.top"] = [0, 0, 32] if self.toggle_light else [0, 0, 0]
+            self.th[self.first_node]["motor.left.target"] = self.left_motor_speed
+            self.th[self.first_node]["motor.right.target"] = self.right_motor_speed
+            self.th[self.first_node]["leds.top"] = [0, 0, 32] if self.toggle_light else [0, 0, 0]
 
     def run(self, pressed_keys: dict) -> None:
         self.pressed_keys = pressed_keys
-        self.top_node.evaluate()
+        if self.is_connected:
+            self.top_node.evaluate()
+            
         # self.handle_inputs(pressed_keys)

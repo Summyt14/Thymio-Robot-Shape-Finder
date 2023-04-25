@@ -1,5 +1,5 @@
-from behavior_tree.base_nodes.node import *
-from thymio_controller import ThymioController
+from behavior_tree.base_nodes.base_node import *
+from thymiodirect import Thymio
 
 
 class MoveRobotAwayObstacle(Node):
@@ -7,23 +7,23 @@ class MoveRobotAwayObstacle(Node):
     A class representing a node that moves the robot away from an obstacle.
 
     Args:
-        controller (ThymioController): The controller for the Thymio robot.
+        th (Thymio): The Thymio robot.
+        first_node (str): The first node.
         speed (int): The speed at which to move the robot.
         distance_check (int): The distance threshold to consider an obstacle.
         obstacle_in_front (bool, optional): Whether to move the robot away from an obstacle in front or behind it.
             Defaults to True.
     """
-    def __init__(self, controller: ThymioController, speed: int, distance_check: int, obstacle_in_front: bool = True) -> None:
+    def __init__(self, th: Thymio, first_node: str, speed: int, distance_check: int, obstacle_in_front: bool = True) -> None:
         super().__init__()
-        self.controller = controller
-        self.th = controller.th
-        self.node_id = controller.node_id
+        self.th = th
+        self.first_node = first_node
         self.speed = speed
         self.distance_check = distance_check
         self.obstacle_in_front = obstacle_in_front
 
     def evaluate(self) -> int:
-        sensors = self.th[self.node_id]["prox.horizontal"]
+        sensors = self.th[self.first_node]["prox.horizontal"]
         final_speed = 0
 
         if self.obstacle_in_front:
@@ -46,6 +46,9 @@ class MoveRobotAwayObstacle(Node):
                 final_speed = self.speed
                 self._node_state = RUNNING
             
-        self.th[self.node_id]["motor.left.target"] = final_speed
-        self.th[self.node_id]["motor.right.target"] = final_speed
+        self.th[self.first_node]["motor.left.target"] = final_speed
+        self.th[self.first_node]["motor.right.target"] = final_speed
         return self._node_state
+    
+    def get_running_node(self) -> Node:
+        return self

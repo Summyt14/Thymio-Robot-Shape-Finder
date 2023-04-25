@@ -19,7 +19,7 @@ from camera import *
 from thymio_controller import *
 
 pygame.init()
-pygame.joystick.init()
+pygame.display.set_caption('Thymio Robot Shape Finder')
 clock = pygame.time.Clock()
 window_size = (1280, 760)
 screen = pygame.display.set_mode(window_size)
@@ -42,7 +42,7 @@ def handle_inputs():
             quit()
 
         if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_RETURN and not camera.status in [CONNECTING, CONNECTED]:
+            if event.key == pygame.K_RETURN and camera.status not in [CONNECTING, CONNECTED]:
                 video_ip = video_ip_text.strip()
                 camera.connect(video_ip)
             elif event.key == pygame.K_ESCAPE:
@@ -50,9 +50,9 @@ def handle_inputs():
                 camera.disconnect()
                 pygame.quit()
                 quit()
-            elif event.key == pygame.K_BACKSPACE:
+            elif event.key == pygame.K_BACKSPACE and not camera.status == CONNECTING:
                 video_ip_text = video_ip_text[:-1]
-            else:
+            elif not camera.status == CONNECTING:
                 if len(video_ip_text) > 20:
                     return
                 video_ip_text += event.unicode
@@ -61,7 +61,8 @@ def handle_inputs():
 
         if event.type == pygame.KEYUP:
             pressed_keys.pop(event.key, None)
-        
+
+
 while True:
     handle_inputs()
 
@@ -72,7 +73,7 @@ while True:
         pygame.draw.rect(screen, (0, 0, 0), pygame.Rect(5, 30, 300, 32), 2)
         enter_ip_text = font.render("Enter the camera's IP address then press RETURN", True, (0, 0, 0))
         ip_text = font.render(video_ip_text, True, (0, 0, 0))
-        camera_status_text = font.render("Status: " + camera.status, True, (0, 0, 0))
+        camera_status_text = font.render(f"Status: {camera.status}", True, (0, 0, 0))
         screen.blit(enter_ip_text, (5, 5))
         screen.blit(ip_text, (10, 35))
         screen.blit(camera_status_text, (5, 70))
@@ -80,14 +81,6 @@ while True:
     # If the camera is connected, show the next frame
     elif camera.status == CONNECTED:
         screen.fill((255, 255, 255))
-        wasd_text = font.render("Use WASD keys to manually control the robot", True, (0, 0, 0))
-        quit_text = font.render("Press ESCAPE to quit", True, (0, 0, 0))
-        left_motor_text = font.render("Left Motor Speed: " + str(controller.left_motor_speed), True, (0, 0, 0))
-        right_motor_text = font.render("Right Motor Speed: " + str(controller.right_motor_speed), True, (0, 0, 0))
-        screen.blit(left_motor_text, (10, window_size[1] - 90))
-        screen.blit(right_motor_text, (260, window_size[1] - 90))
-        screen.blit(wasd_text, (10, window_size[1] - 60))
-        screen.blit(quit_text, (10, window_size[1] - 30))
 
         # Get and show the original and processed frames from the camera
         original_frame, processed_frame = camera.run()
@@ -98,6 +91,18 @@ while True:
             screen.blit(gray_surface, (window_size[0] // 2, 0))
 
         controller.run(pressed_keys)
+
+        if controller.is_connected:
+            status_text = font.render(f"Current Node: {type(controller.top_node.get_running_node()).__name__}", True, (0, 0, 0))
+            screen.blit(status_text, (10, window_size[1] - 120))
+        left_motor_text = font.render("Left Motor Speed: " + str(controller.left_motor_speed), True, (0, 0, 0))
+        right_motor_text = font.render("Right Motor Speed: " + str(controller.right_motor_speed), True, (0, 0, 0))
+        wasd_text = font.render("Use WASD keys to manually control the robot", True, (0, 0, 0))
+        quit_text = font.render("Press ESCAPE to quit", True, (0, 0, 0))
+        screen.blit(left_motor_text, (10, window_size[1] - 90))
+        screen.blit(right_motor_text, (260, window_size[1] - 90))
+        screen.blit(wasd_text, (10, window_size[1] - 60))
+        screen.blit(quit_text, (10, window_size[1] - 30))
 
     pygame.display.update()
     clock.tick(30)

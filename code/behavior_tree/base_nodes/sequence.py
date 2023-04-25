@@ -1,4 +1,4 @@
-from node import *
+from .base_node import *
 
 
 class Sequence(Node):
@@ -14,6 +14,7 @@ class Sequence(Node):
     Args:
         node_list (list[Node]): The list of child nodes to execute.
     """
+
     def __init__(self, node_list: list[Node]) -> None:
         super().__init__()
         self.node_list = node_list
@@ -25,6 +26,7 @@ class Sequence(Node):
             evaluate_node = node.evaluate()
             if evaluate_node == RUNNING:
                 is_any_node_running = True
+                self._running_node = node.get_running_node()
                 break
             elif evaluate_node == SUCCESS:
                 break
@@ -34,3 +36,6 @@ class Sequence(Node):
 
         self._node_state = RUNNING if is_any_node_running else SUCCESS
         return self._node_state
+
+    def get_running_node(self) -> Node:
+        return self._running_node

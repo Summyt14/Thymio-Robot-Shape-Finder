@@ -1,4 +1,4 @@
-from node import *
+from .base_node import *
 
 
 class Selector(Node):
@@ -23,6 +23,7 @@ class Selector(Node):
             evaluate_node = node.evaluate()
             if evaluate_node == RUNNING:
                 self._node_state = RUNNING
+                self._running_node = node.get_running_node()
                 return self._node_state
             elif evaluate_node == SUCCESS:
                 self._node_state = SUCCESS
@@ -32,3 +33,6 @@ class Selector(Node):
 
         self._node_state = FAILURE
         return self._node_state
+
+    def get_running_node(self) -> Node:
+        return self._running_node
