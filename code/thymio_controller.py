@@ -19,12 +19,9 @@ class ThymioController:
         self.pressed_keys = dict()
         self.top_node = None
 
-    def construct_behavior_tree(self) -> Node:
+    def construct_behavior_tree(self) -> None:
         """
         Constructs the behavior tree for the robot.
-
-        Returns:
-            Node: The top-level node of the behavior tree.
         """
         has_object_front = HasObjectInFront(self.th, self.first_node, 4000)
         move_robot_away_obstacle = MoveRobotAwayObstacle(self.th, self.first_node, 250, 2000)
@@ -32,8 +29,7 @@ class ThymioController:
         avoid_object_seq = Sequence(list(has_object_front, move_robot_away_obstacle, rotate_robot))
         idle = Idle()
 
-        top_node = Selector(list(avoid_object_seq, idle))
-        return top_node
+        self.top_node = Selector(list(avoid_object_seq, idle))
 
     def connect(self) -> bool:
         """
@@ -48,7 +44,7 @@ class ThymioController:
             self.th.connect()
             self.first_node = self.th.first_node()
             self.is_connected = True
-            self.top_node = self.construct_behavior_tree()
+            self.construct_behavior_tree()
             return True
         except:
             return False
