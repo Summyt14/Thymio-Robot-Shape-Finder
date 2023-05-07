@@ -1,6 +1,6 @@
 import cv2
 import threading
-from queue import Queue
+import pygame
 
 DISCONNECTED = "Disconnected"
 CONNECTED = "Connected"
@@ -21,8 +21,8 @@ class Camera:
     def __init__(self) -> None:
         self.video_url = ""
         self.status = DISCONNECTED
-        self.original_frame_queue = Queue()
-        self.processed_frame_queue = Queue()
+        self.original_frame = None
+        self.processed_frame = None
         self.thread = None
         self.lock = threading.Lock()
 
@@ -114,25 +114,11 @@ class Camera:
                 frame = frame[15:, :]
                 frame = cv2.flip(frame, 0)
                 frame = cv2.rotate(frame, cv2.ROTATE_90_CLOCKWISE)
-                orignial_frame, processed_frame = self.apply_operators(frame)
-                self.original_frame_queue.put(orignial_frame)
-                self.processed_frame_queue.put(processed_frame)
-
-    def run(self):
-        """
-        Returns the original and processed frames from the camera.
-    
-        Returns:
-            A tuple containing the original and processed frames.
-        """
-        if not self.original_frame_queue.empty() and not self.processed_frame_queue.empty():
-            original_frame = self.original_frame_queue.get()
-            processed_frame = self.processed_frame_queue.get()
-            color_frame = cv2.cvtColor(original_frame, cv2.COLOR_BGR2RGB)
-            gray_frame = cv2.cvtColor(processed_frame, cv2.COLOR_BGR2RGB)
-            return color_frame, gray_frame
-        else:
-            return None, None
+                original_frame, processed_frame = self.apply_operators(frame)
+                original_frame = cv2.cvtColor(original_frame, cv2.COLOR_BGR2RGB)
+                processed_frame = cv2.cvtColor(processed_frame, cv2.COLOR_BGR2RGB)
+                self.original_frame = pygame.surfarray.make_surface(original_frame)
+                self.processed_frame = pygame.surfarray.make_surface(processed_frame)
 
     def disconnect(self):
         """

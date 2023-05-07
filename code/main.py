@@ -66,39 +66,38 @@ def handle_inputs():
 while True:
     handle_inputs()
 
-    screen.fill((255, 255, 255))
+    screen.fill((0, 0, 0))
 
     # Show the frame to enter the camera IP address
     if camera.status in [DISCONNECTED, ERROR, CONNECTING]:
-        pygame.draw.rect(screen, (0, 0, 0), pygame.Rect(5, 30, 300, 32), 2)
-        enter_ip_text = font.render("Enter the camera's IP address then press RETURN", True, (0, 0, 0))
-        ip_text = font.render(video_ip_text, True, (0, 0, 0))
-        camera_status_text = font.render(f"Status: {camera.status}", True, (0, 0, 0))
+        pygame.draw.rect(screen, (255, 255, 255), pygame.Rect(5, 30, 300, 32), 2)
+        enter_ip_text = font.render("Enter the camera's IP address then press RETURN", True, (255, 255, 255))
+        ip_text = font.render(video_ip_text, True, (255, 255, 255))
+        camera_status_text = font.render(f"Status: {camera.status}", True, (255, 255, 255))
         screen.blit(enter_ip_text, (5, 5))
         screen.blit(ip_text, (10, 35))
         screen.blit(camera_status_text, (5, 70))
 
     # If the camera is connected, show the next frame
     elif camera.status == CONNECTED:
-        screen.fill((255, 255, 255))
+        screen.fill((0, 0, 0))
 
         # Get and show the original and processed frames from the camera
-        original_frame, processed_frame = camera.run()
+        original_frame = camera.original_frame
+        processed_frame = camera.processed_frame
         if original_frame is not None and processed_frame is not None:
-            color_surface = pygame.surfarray.make_surface(original_frame)
-            gray_surface = pygame.surfarray.make_surface(processed_frame)
-            screen.blit(color_surface, (0, 0))
-            screen.blit(gray_surface, (window_size[0] // 2, 0))
+            screen.blit(original_frame, (0, 0))
+            screen.blit(processed_frame, (window_size[0] // 2, 0))
 
         controller.run(pressed_keys)
 
         if controller.is_connected:
-            status_text = font.render(f"Current Node: {type(controller.top_node.get_running_node()).__name__}", True, (0, 0, 0))
+            status_text = font.render(f"Current Node: {type(controller.top_node.get_running_node()).__name__}", True, (255, 255, 255))
             screen.blit(status_text, (10, window_size[1] - 120))
-        left_motor_text = font.render("Left Motor Speed: " + str(controller.left_motor_speed), True, (0, 0, 0))
-        right_motor_text = font.render("Right Motor Speed: " + str(controller.right_motor_speed), True, (0, 0, 0))
-        wasd_text = font.render("Use WASD keys to manually control the robot", True, (0, 0, 0))
-        quit_text = font.render("Press ESCAPE to quit", True, (0, 0, 0))
+        left_motor_text = font.render("Left Motor Speed: " + str(controller.left_motor_speed), True, (255, 255, 255))
+        right_motor_text = font.render("Right Motor Speed: " + str(controller.right_motor_speed), True, (255, 255, 255))
+        wasd_text = font.render("Use WASD keys to manually control the robot", True, (255, 255, 255))
+        quit_text = font.render("Press ESCAPE to quit", True, (255, 255, 255))
         screen.blit(left_motor_text, (10, window_size[1] - 90))
         screen.blit(right_motor_text, (260, window_size[1] - 90))
         screen.blit(wasd_text, (10, window_size[1] - 60))
