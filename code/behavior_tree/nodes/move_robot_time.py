@@ -34,10 +34,12 @@ class MoveRobotTime(Node):
             self.th[self.first_node]["motor.left.target"] = self.left_speed
             self.th[self.first_node]["motor.right.target"] = self.right_speed
             self._node_state = RUNNING
+            print("im turning")
         else:
             self.th[self.first_node]["motor.left.target"] = 0
             self.th[self.first_node]["motor.right.target"] = 0
             self._node_state = SUCCESS
+            print("i stopped turning")
 
         return self._node_state
     

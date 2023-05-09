@@ -27,19 +27,19 @@ class MoveRobotAwayObstacle(Node):
         final_speed = 0
 
         if self.obstacle_in_front:
-            if 0 < sensors[0] > self.distance_check \
-                    and 0 < sensors[1] > self.distance_check \
-                    and 0 < sensors[2] > self.distance_check \
-                    and 0 < sensors[3] > self.distance_check \
-                    and 0 < sensors[4] > self.distance_check:
+            if 0 < sensors[0] < self.distance_check \
+                    and 0 < sensors[1] < self.distance_check \
+                    and 0 < sensors[2] < self.distance_check \
+                    and 0 < sensors[3] < self.distance_check \
+                    and 0 < sensors[4] < self.distance_check:
                 final_speed = 0
                 self._node_state = SUCCESS
             else:
                 final_speed = -self.speed
                 self._node_state = RUNNING
         else:
-            if 0 < sensors[5] > self.distance_check \
-                    and 0 < sensors[6] > self.distance_check:
+            if 0 < sensors[5] < self.distance_check \
+                    and 0 < sensors[6] < self.distance_check:
                 final_speed = 0
                 self._node_state = SUCCESS
             else:

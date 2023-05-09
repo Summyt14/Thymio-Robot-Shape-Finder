@@ -12,26 +12,42 @@ class HasObjectInFront(Node):
     Args:
         th (Thymio): The Thymio robot.
         first_node (str): The main node id.
-        distance_check (int): The distance threshold to consider an obstacle.
+        fst_distance_check (int): The first distance threshold to consider an obstacle.
+        snd_distance_check (int): The second distance threshold to consider an obstacle.
     """
-    def __init__(self, th: Thymio, first_node: str, distance_check: int) -> None:
+    def __init__(self, th: Thymio, first_node: str, fst_distance_check: int, snd_distance_check: int) -> None:
         super().__init__()
         self.th = th
         self.first_node = first_node
-        self.distance_check = distance_check
+        self.fst_distance_check = fst_distance_check
+        self.snd_distance_check = snd_distance_check
+        self.avoiding_obstacle = False
 
     def evaluate(self) -> int:
         sensors = self.th[self.first_node]["prox.horizontal"]
-        if sensors[0] > self.distance_check \
-                or sensors[1] > self.distance_check \
-                or sensors[2] > self.distance_check \
-                or sensors[3] > self.distance_check \
-                or sensors[4] > self.distance_check:
-            self._node_state = SUCCESS
+        print(sensors)
+        if (sensors[0] > self.snd_distance_check) \
+                or (sensors[1] > self.snd_distance_check) \
+                or (sensors[2] > self.snd_distance_check) \
+                or (sensors[3] > self.snd_distance_check) \
+                or (sensors[4] > self.snd_distance_check):
+            if (self.avoiding_obstacle):
+                self._node_state = SUCCESS
+                return self._node_state
+            
+            if (sensors[0] > self.fst_distance_check) \
+                    or (sensors[1] > self.fst_distance_check) \
+                    or (sensors[2] > self.fst_distance_check) \
+                    or (sensors[3] > self.fst_distance_check) \
+                    or (sensors[4] > self.fst_distance_check):
+               self.avoiding_obstacle = True
+            else:
+                self._node_state = FAILURE
+                return self._node_state
+        else:
+            self.avoiding_obstacle = False
+            self._node_state = FAILURE
             return self._node_state
-
-        self._node_state = FAILURE
-        return self._node_state
-    
+        
     def get_running_node(self):
         return self

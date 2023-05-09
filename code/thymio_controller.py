@@ -18,18 +18,19 @@ class ThymioController:
         self.right_motor_speed = 0
         self.pressed_keys = dict()
         self.top_node = None
+        self.avoiding_obstacle = False
 
     def construct_behavior_tree(self) -> None:
         """
         Constructs the behavior tree for the robot.
         """
-        has_object_front = HasObjectInFront(self.th, self.first_node, 4000)
-        move_robot_away_obstacle = MoveRobotAwayObstacle(self.th, self.first_node, 250, 2000)
-        rotate_robot = MoveRobotTime(self.th, self.first_node, 100, 200, 1)
-        avoid_object_seq = Sequence(list(has_object_front, move_robot_away_obstacle, rotate_robot))
-        idle = Idle()
+        has_object_front = HasObjectInFront(self.th, self.first_node, 4500, 1000)
+        move_robot_away_obstacle = MoveRobotAwayObstacle(self.th, self.first_node, 100, 3500)
+        rotate_robot = MoveRobotTime(self.th, self.first_node, 0, 100, 3)
+        avoid_object_seq = Sequence([has_object_front, move_robot_away_obstacle, rotate_robot])
+        idle = Idle(self.th, self.first_node)
 
-        self.top_node = Selector(list(avoid_object_seq, idle))
+        self.top_node = Selector([avoid_object_seq, idle])
 
     def connect(self) -> bool:
         """
@@ -55,8 +56,10 @@ class ThymioController:
         """
         # TODO i dont think this is the right function to disconnect
         if self.is_connected:
-            self.th.disconnect()
+            self.th[self.first_node]["motor.left.target"] = 0
+            self.th[self.first_node]["motor.right.target"] = 0
             self.is_connected = False
+            self.th.disconnect()
 
     # TODO this function needs to be convert into a node class 
     def handle_inputs(self, pressed_keys: dict) -> None:

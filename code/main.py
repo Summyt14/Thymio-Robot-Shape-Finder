@@ -24,7 +24,7 @@ clock = pygame.time.Clock()
 window_size = (1280, 760)
 screen = pygame.display.set_mode(window_size)
 font = pygame.font.Font(None, 32)
-video_ip_text = ""
+video_ip_text = "10.101.121.220"
 
 camera = Camera()
 controller = ThymioController()

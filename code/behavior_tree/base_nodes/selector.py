@@ -29,7 +29,7 @@ class Selector(Node):
                 self._node_state = SUCCESS
                 return self._node_state
             else:
-                break
+                continue
 
         self._node_state = FAILURE
         return self._node_state

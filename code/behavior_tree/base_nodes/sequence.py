@@ -29,7 +29,7 @@ class Sequence(Node):
                 self._running_node = node.get_running_node()
                 break
             elif evaluate_node == SUCCESS:
-                break
+                continue
             else:
                 self._node_state = FAILURE
                 return self._node_state
