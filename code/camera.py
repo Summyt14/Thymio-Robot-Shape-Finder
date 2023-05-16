@@ -1,11 +1,14 @@
 import cv2
 import threading
 import pygame
+import numpy as np
 
 DISCONNECTED = "Disconnected"
 CONNECTED = "Connected"
 CONNECTING = "Connecting"
+DETECTING = "Detecting"
 ERROR = "Error"
+DEBUG = "Debug"
 
 
 class Camera:
@@ -23,6 +26,7 @@ class Camera:
         self.status = DISCONNECTED
         self.original_frame = None
         self.processed_frame = None
+        self.detected_shapes = []
         self.thread = None
         self.lock = threading.Lock()
 
@@ -48,48 +52,51 @@ class Camera:
         Returns:
             A tuple containing the original and processed frames.
         """
-        # Grayscale, Otsu's threshold
         gray =  cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        blur = cv2.medianBlur(gray, 9)
-        _, threshold = cv2.threshold(blur, 127, 255, cv2.THRESH_BINARY)
-        contours, _ = cv2.findContours(threshold, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-        i = 0
-  
-        # list for storing names of shapes
+        blurred = cv2.GaussianBlur(gray, (5, 5), 0)
+        thresh = cv2.threshold(blurred, 60, 255, cv2.THRESH_BINARY)[1]
+
+        if self.status not in [DETECTING, DEBUG]:
+            return frame, thresh
+
+        contours, _ = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+        self.detected_shapes.clear()
+
         for contour in contours:
-        
-            # here we are ignoring first counter because 
-            # findcontour function detects whole image as shape
-            if i == 0:
-                i = 1
+            area = cv2.contourArea(contour)
+            if area < 1000 or area > 150000:
                 continue
-            
-            # cv2.approxPloyDP() function to approximate the shape
-            approx = cv2.approxPolyDP(contour, 0.01 * cv2.arcLength(contour, True), True)
 
-            # using drawContours() function
-            cv2.drawContours(frame, [contour], 0, (0, 255, 0), 5)
-
+            cv2.drawContours(frame, [contour], -1, (255, 0, 0), 5)
             x = y = 0
             # finding center point of shape
             M = cv2.moments(contour)
             if M['m00'] != 0.0:
-                x = int(M['m10']/M['m00'])
-                y = int(M['m01']/M['m00'])
+                x = int(M["m10"] / M["m00"])
+                y = int(M["m01"] / M["m00"])
 
-            # putting shape name at center of each shape
-            if len(approx) == 3:
-                cv2.putText(frame, 'Triangle', (x, y), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 0, 0), 2)
-            elif len(approx) == 4:
-                cv2.putText(frame, 'Quadrilateral', (x, y), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 0, 0), 2)
-            elif len(approx) == 5:
-                cv2.putText(frame, 'Pentagon', (x, y), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 0, 0), 2)
-            elif len(approx) == 6:
-                cv2.putText(frame, 'Hexagon', (x, y), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 0, 0), 2)
-            else:
-                cv2.putText(threshold, 'circle', (x, y), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 0, 0), 2)
+            # find number of edges
+            epsilon = 0.04 * cv2.arcLength(contour, True)
+            approx = cv2.approxPolyDP(contour, epsilon, True)
+            edges = len(approx)
+            shape_name = self.get_shape_name(edges)
+            self.detected_shapes.append(shape_name)
 
-        return frame, threshold
+            # Create a separate image for the text
+            text_img = np.zeros_like(frame)
+            cv2.putText(text_img, shape_name, (y, x), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 0, 0), 2)
+            # Mirror the text image horizontally
+            mirrored_text_img = cv2.flip(text_img, 1)
+            # Rotate the text by 90 degrees
+            rows, cols, _ = mirrored_text_img.shape
+            M = cv2.getRotationMatrix2D((cols / 2, rows / 2), 90, 1)
+            rotated_text_img = cv2.warpAffine(mirrored_text_img, M, (cols, rows))
+
+            # Overlay the rotated text onto the original image
+            frame = cv2.add(frame, rotated_text_img)
+
+        return frame, thresh
 
     def run_thread(self, video_url: str):
         """
@@ -119,6 +126,24 @@ class Camera:
                 processed_frame = cv2.cvtColor(processed_frame, cv2.COLOR_BGR2RGB)
                 self.original_frame = pygame.surfarray.make_surface(original_frame)
                 self.processed_frame = pygame.surfarray.make_surface(processed_frame)
+
+    def get_shape_name(self, edges: int) -> str:
+        """
+        Returns the name of a shape given the number of edges.
+
+        Args:
+            edges (int): The number of edges.
+        Returns:
+            str: The name of the shape.
+        """
+        if edges == 3:
+            return "Triangle"
+        elif edges == 4:
+            return "Rectangle"
+        elif edges == 5:
+            return "Pentagon"
+        else:
+            return "Circle"
 
     def disconnect(self):
         """

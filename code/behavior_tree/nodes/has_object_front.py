@@ -25,7 +25,6 @@ class HasObjectInFront(Node):
 
     def evaluate(self) -> int:
         sensors = self.th[self.first_node]["prox.horizontal"]
-        print(sensors)
         if (sensors[0] > self.snd_distance_check) \
                 or (sensors[1] > self.snd_distance_check) \
                 or (sensors[2] > self.snd_distance_check) \

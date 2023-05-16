@@ -24,10 +24,10 @@ clock = pygame.time.Clock()
 window_size = (1280, 760)
 screen = pygame.display.set_mode(window_size)
 font = pygame.font.Font(None, 32)
-video_ip_text = "10.101.121.220"
+video_ip_text = "192.168.1.73"
 
 camera = Camera()
-controller = ThymioController()
+controller = ThymioController(camera)
 controller.connect()
 pressed_keys = {}
 
@@ -79,7 +79,7 @@ while True:
         screen.blit(camera_status_text, (5, 70))
 
     # If the camera is connected, show the next frame
-    elif camera.status == CONNECTED:
+    elif camera.status in [CONNECTED, DETECTING, DEBUG]:
         screen.fill((0, 0, 0))
 
         # Get and show the original and processed frames from the camera
@@ -96,11 +96,11 @@ while True:
             screen.blit(status_text, (10, window_size[1] - 120))
         left_motor_text = font.render("Left Motor Speed: " + str(controller.left_motor_speed), True, (255, 255, 255))
         right_motor_text = font.render("Right Motor Speed: " + str(controller.right_motor_speed), True, (255, 255, 255))
-        wasd_text = font.render("Use WASD keys to manually control the robot", True, (255, 255, 255))
+        shapes_text = font.render(f"Detected Shapes: {', '.join(map(str, camera.detected_shapes))}", True, (255, 255, 255))
         quit_text = font.render("Press ESCAPE to quit", True, (255, 255, 255))
         screen.blit(left_motor_text, (10, window_size[1] - 90))
         screen.blit(right_motor_text, (260, window_size[1] - 90))
-        screen.blit(wasd_text, (10, window_size[1] - 60))
+        screen.blit(shapes_text, (10, window_size[1] - 60))
         screen.blit(quit_text, (10, window_size[1] - 30))
 
     pygame.display.update()
