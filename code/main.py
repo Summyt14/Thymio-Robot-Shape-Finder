@@ -25,8 +25,28 @@ clock = pygame.time.Clock()
 window_size = (1280, 760)
 screen = pygame.display.set_mode(window_size)
 font = pygame.font.Font(None, 32)
-video_ip_text = "192.168.68.110"
 
+background_color = (0, 0, 0)
+text_color = (255, 255, 255)
+# Set up the buttons
+button_size = 100
+button_padding = 20
+button_coords = [(window_size[0] - 130, window_size[1] - 130), 
+                 (window_size[0] - 260, window_size[1] - 130), 
+                 (window_size[0] - 390, window_size[1] - 130), 
+                 (window_size[0] - 130, window_size[1] - 260), 
+                 (window_size[0] - 260, window_size[1] - 260), 
+                 (window_size[0] - 390, window_size[1] - 260)]
+default_color = (200, 200, 200)
+selected_color = (0, 255, 0)
+buttons = []
+selected_button_index = None
+button_colors = [default_color] * len(button_coords)
+for coord in button_coords:
+    button_rect = pygame.Rect(coord[0], coord[1], button_size, button_size)
+    buttons.append(button_rect)
+
+video_ip_text = "192.168.1.73"
 camera = Camera()
 controller = ThymioController(camera,"square")
 controller.connect()
@@ -34,7 +54,7 @@ pressed_keys = {}
 
 
 def handle_inputs():
-    global video_ip_text
+    global video_ip_text, selected_button_index
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             controller.disconnect()
@@ -57,8 +77,16 @@ def handle_inputs():
                 if len(video_ip_text) > 20:
                     return
                 video_ip_text += event.unicode
-
             pressed_keys[event.key] = True
+
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            mouse_pos = pygame.mouse.get_pos()
+            for i, button_rect in enumerate(buttons):
+                if button_rect.collidepoint(mouse_pos):
+                    button_colors[i] = selected_color
+                    if selected_button_index is not None:
+                        button_colors[selected_button_index] = default_color
+                    selected_button_index = i
 
         if event.type == pygame.KEYUP:
             pressed_keys.pop(event.key, None)
@@ -67,21 +95,21 @@ def handle_inputs():
 while True:
     handle_inputs()
 
-    screen.fill((0, 0, 0))
+    screen.fill(background_color)
 
     # Show the frame to enter the camera IP address
     if camera.status in [DISCONNECTED, ERROR, CONNECTING]:
-        pygame.draw.rect(screen, (255, 255, 255), pygame.Rect(5, 30, 300, 32), 2)
-        enter_ip_text = font.render("Enter the camera's IP address then press RETURN", True, (255, 255, 255))
-        ip_text = font.render(video_ip_text, True, (255, 255, 255))
-        camera_status_text = font.render(f"Status: {camera.status}", True, (255, 255, 255))
+        pygame.draw.rect(screen, text_color, pygame.Rect(5, 30, 300, 32), 2)
+        enter_ip_text = font.render("Enter the camera's IP address then press RETURN", True, text_color)
+        ip_text = font.render(video_ip_text, True, text_color)
+        camera_status_text = font.render(f"Status: {camera.status}", True, text_color)
         screen.blit(enter_ip_text, (5, 5))
         screen.blit(ip_text, (10, 35))
         screen.blit(camera_status_text, (5, 70))
 
     # If the camera is connected, show the next frame
     elif camera.status in [CONNECTED, DETECTING, DEBUG]:
-        screen.fill((0, 0, 0))
+        screen.fill(background_color)
 
         # Get and show the original and processed frames from the camera
         original_frame = camera.original_frame
@@ -92,15 +120,14 @@ while True:
 
         controller.run(pressed_keys)
 
+        for i, button_rect in enumerate(buttons):
+            pygame.draw.rect(screen, button_colors[i], button_rect)
+
         if controller.is_connected:
-            status_text = font.render(f"Current Node: {type(controller.top_node.get_running_node()).__name__}", True, (255, 255, 255))
-            screen.blit(status_text, (10, window_size[1] - 120))
-        left_motor_text = font.render("Left Motor Speed: " + str(controller.left_motor_speed), True, (255, 255, 255))
-        right_motor_text = font.render("Right Motor Speed: " + str(controller.right_motor_speed), True, (255, 255, 255))
-        shapes_text = font.render(f"Detected Shapes: {', '.join(map(str, camera.detected_shapes))}", True, (255, 255, 255))
-        quit_text = font.render("Press ESCAPE to quit", True, (255, 255, 255))
-        screen.blit(left_motor_text, (10, window_size[1] - 90))
-        screen.blit(right_motor_text, (260, window_size[1] - 90))
+            status_text = font.render(f"Current Node: {type(controller.top_node.get_running_node()).__name__}", True, text_color)
+            screen.blit(status_text, (10, window_size[1] - 90))
+        shapes_text = font.render(f"Detected Shapes: {', '.join(map(str, camera.detected_shapes))}", True, text_color)
+        quit_text = font.render("Press ESCAPE to quit", True, text_color)
         screen.blit(shapes_text, (10, window_size[1] - 60))
         screen.blit(quit_text, (10, window_size[1] - 30))
 

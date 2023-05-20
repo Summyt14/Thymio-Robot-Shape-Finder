@@ -39,8 +39,8 @@ class Camera:
         """
         self.video_url = "http://%s:4747/video" % (ip)
         self.status = CONNECTING
-        thread = threading.Thread(target=self.run_thread, args=(self.video_url,))
-        thread.start()
+        self.thread = threading.Thread(target=self.run_thread, args=(self.video_url,))
+        self.thread.start()
 
     def apply_operators(self, frame):
         """
