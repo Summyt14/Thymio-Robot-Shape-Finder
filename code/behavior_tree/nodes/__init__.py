@@ -10,3 +10,4 @@ from .align import Align
 from .backoff import Backoff
 from .idle_timer import IdleTimer
 from .rotate import Rotate
+from .avoid_fall import AvoidFall

@@ -29,16 +29,12 @@ class Backoff(Node):
         if (sensors[5] == 0
             and sensors[6] == 0) :
 
-            print("back cleared")
-            print ("center ", sensors[2])
 
             if (0 < sensors[2] < self.back_distance):
 
                 self.th[self.first_node]["motor.left.target"] = 0
                 self.th[self.first_node]["motor.right.target"] = 0
 
-                
-                print("backed enough")
 
                 return  SUCCESS
 

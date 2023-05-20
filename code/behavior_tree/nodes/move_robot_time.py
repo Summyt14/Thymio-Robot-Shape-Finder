@@ -24,22 +24,26 @@ class MoveRobotTime(Node):
         self.start_time = None
 
     def evaluate(self) -> int:
+
         if self.start_time is None:
             self.start_time = time.time()
         
         elapsed_time = time.time() - self.start_time
         remaining_time = max(self.duration - elapsed_time, 0)
+        print(remaining_time)
+
+
         
-        if remaining_time > 0:
+        if remaining_time > 0 :
             self.th[self.first_node]["motor.left.target"] = self.left_speed
             self.th[self.first_node]["motor.right.target"] = self.right_speed
             self._node_state = RUNNING
-            print("im turning")
-        else:
+            print("performing action ", remaining_time)
+        if remaining_time == 0:
             self.th[self.first_node]["motor.left.target"] = 0
             self.th[self.first_node]["motor.right.target"] = 0
             self._node_state = SUCCESS
-            print("i stopped turning")
+            print("i stopped turning ", remaining_time)
 
         return self._node_state
     

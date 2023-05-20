@@ -39,7 +39,8 @@ class ThymioController:
         shape_detect = Sequence([has_detected_correct_shape, make_noise, idle])
 
 
-        rotate_robot = MoveRobotTime(self.th, self.first_node, 0, 100, 3)
+        rotate_robot = MoveRobotTime(self.th, self.first_node, 50, -50, 10.0)
+        wait = MoveRobotTime(self.th, self.first_node, 0, 0, 2.0)
         move_robot_away_obstacle = MoveRobotAwayObstacle(self.th, self.first_node, 100, 3500)
         avoid_object_seq = Sequence([move_robot_away_obstacle, rotate_robot])
 
@@ -59,7 +60,10 @@ class ThymioController:
         rotate = Rotate(self.th, self.first_node, 50, 4)
         align_sequence = Sequence([align, backoff, idle_timer, rotate])
 
+        avoid_fall = AvoidFall
+
         self.top_node = Selector([move_sequence, align_sequence])
+        #self.top_node = Selector([move_sequence, align_sequence])
 
     def connect(self) -> bool:
         """

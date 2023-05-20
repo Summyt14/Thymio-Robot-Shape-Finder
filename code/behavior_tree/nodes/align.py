@@ -30,8 +30,6 @@ class Align(Node):
             self.th[self.first_node]["motor.left.target"] = -self.speed
             self.th[self.first_node]["motor.right.target"] = self.speed
 
-            print("turning left")
-
             self._node_state = RUNNING
         
         elif(sensors[3] > sensors[1] + calibrate_delay ):
@@ -39,13 +37,10 @@ class Align(Node):
             self.th[self.first_node]["motor.left.target"] = self.speed
             self.th[self.first_node]["motor.right.target"] = -self.speed
 
-            print("turning right")
-
             self._node_state = RUNNING
 
         else:
 
-            print("aligned")
 
             self._node_state = SUCCESS
 
