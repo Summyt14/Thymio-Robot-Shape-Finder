@@ -6,13 +6,19 @@ from behavior_tree.nodes import *
 from thymiodirect import Connection, Thymio
 
 
+TRIANGLE = "Triangle"
+RECTANGLE = "Rectangle"
+PENTAGON = "Pentagon"
+CIRCLE = "Circle"
+
+
 class ThymioController:
     """
     This class is the brain of the robot. It's responsible for translating the information it receives into physical behaviours.
     """
-    def __init__(self, camera: Camera, desired_shape: str) -> None:
+    def __init__(self, camera: Camera) -> None:
         self.camera = camera
-        self.desired_shape = desired_shape
+        self.desired_shape = ""
         self.is_connected = False
         self.th = None
         self.first_node = None
