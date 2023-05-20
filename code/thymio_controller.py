@@ -80,6 +80,22 @@ class ThymioController:
             return True
         except:
             return False
+        
+    def set_desired_shape(self, button_index: int) -> None:
+        """
+        Sets the desired shape for the thymio to lookout for.
+        
+        Args:
+            button_index (int): The index of the button pressed.
+        """
+        if button_index == 0:
+            self.desired_shape = TRIANGLE
+        elif button_index == 1:
+            self.desired_shape = RECTANGLE
+        elif button_index == 2:
+            self.desired_shape = PENTAGON
+        elif button_index == 3:
+            self.desired_shape = CIRCLE
 
     def disconnect(self) -> None:
         """
@@ -96,4 +112,3 @@ class ThymioController:
         if self.is_connected:
             self.top_node.evaluate()
             
-        # self.handle_inputs(pressed_keys)
