@@ -32,18 +32,27 @@ class ThymioController:
         idle = Idle(self.th, self.first_node)
         shape_detect = Sequence([has_detected_correct_shape, make_noise, idle])
 
+
         rotate_robot = MoveRobotTime(self.th, self.first_node, 0, 100, 3)
         move_robot_away_obstacle = MoveRobotAwayObstacle(self.th, self.first_node, 100, 3500)
         avoid_object_seq = Sequence([move_robot_away_obstacle, rotate_robot])
 
+        obstacle_detected = Inverter(ObstacleDetected(self.th, self.first_node, 2000))
         obstacle_handling = Selector([shape_detect, avoid_object_seq])
 
-        # TODO this node
-        move_forward = None # MoveForward(...)
-        has_object_front = Inverter(HasObjectInFront(self.th, self.first_node, 4500, 1000))
-        move_sequence = Sequence([move_forward, has_object_front])
 
-        self.top_node = Selector([move_sequence, obstacle_handling])
+        # TODO this node
+        move_forward = MoveForward(self.th, self.first_node, 50)
+        has_object_front = Inverter(HasObjectInFront(self.th, self.first_node, 4500, 2000))
+        move_sequence = Sequence([obstacle_detected, move_forward])
+        
+        
+        align = Align(self.th, self.first_node, 15)
+        backoff = Backoff(self.th, self.first_node, 50, 2500)
+        idle_timer = IdleTimer(self.th, self.first_node, 2)
+        align_sequence = Sequence([align, backoff, idle_timer])
+
+        self.top_node = Selector([move_sequence, align_sequence])
 
     def connect(self) -> bool:
         """

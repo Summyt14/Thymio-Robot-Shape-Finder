@@ -1,5 +1,6 @@
 import os
 import importlib
+from importlib import util
 
 # Install the required libraries if they are not in the system yet
 if importlib.util.find_spec("cv2") is None:
@@ -24,10 +25,10 @@ clock = pygame.time.Clock()
 window_size = (1280, 760)
 screen = pygame.display.set_mode(window_size)
 font = pygame.font.Font(None, 32)
-video_ip_text = "192.168.1.73"
+video_ip_text = "192.168.68.110"
 
 camera = Camera()
-controller = ThymioController(camera)
+controller = ThymioController(camera,"square")
 controller.connect()
 pressed_keys = {}
 

@@ -4,3 +4,8 @@ from .move_robot_away_obstacle import MoveRobotAwayObstacle
 from .idle import Idle
 from .has_detected_correct_shape import HasDetectedCorrectShape
 from .make_noise import MakeNoise
+from .move_forward import MoveForward
+from .obstacle_detected import ObstacleDetected
+from .align import Align
+from .backoff import Backoff
+from .idle_timer import IdleTimer
