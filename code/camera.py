@@ -7,6 +7,7 @@ DISCONNECTED = "Disconnected"
 CONNECTED = "Connected"
 CONNECTING = "Connecting"
 DETECTING = "Detecting"
+FINISHED = "Finished"
 ERROR = "Error"
 DEBUG = "Debug"
 
@@ -96,6 +97,7 @@ class Camera:
             # Overlay the rotated text onto the original image
             frame = cv2.add(frame, rotated_text_img)
 
+        self.status = FINISHED
         return frame, thresh
 
     def run_thread(self, video_url: str):
