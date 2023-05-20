@@ -28,7 +28,6 @@ font = pygame.font.Font(None, 32)
 
 background_color = (0, 0, 0)
 text_color = (255, 255, 255)
-# Set up the buttons
 button_size = 100
 button_padding = 20
 button_coords = [(window_size[0] - 130, window_size[1] - 130), 
@@ -38,17 +37,18 @@ button_coords = [(window_size[0] - 130, window_size[1] - 130),
                  (window_size[0] - 260, window_size[1] - 260), 
                  (window_size[0] - 390, window_size[1] - 260)]
 default_color = (200, 200, 200)
-selected_color = (0, 255, 0)
+selected_color = (0, 130, 0)
 buttons = []
 selected_button_index = None
 button_colors = [default_color] * len(button_coords)
 for coord in button_coords:
     button_rect = pygame.Rect(coord[0], coord[1], button_size, button_size)
     buttons.append(button_rect)
+buttons.reverse()
 
 video_ip_text = "192.168.1.73"
 camera = Camera()
-controller = ThymioController(camera,"square")
+controller = ThymioController(camera)
 controller.connect()
 pressed_keys = {}
 
@@ -87,6 +87,7 @@ def handle_inputs():
                     if selected_button_index is not None:
                         button_colors[selected_button_index] = default_color
                     selected_button_index = i
+                    controller.set_desired_shape(i)
 
         if event.type == pygame.KEYUP:
             pressed_keys.pop(event.key, None)
@@ -122,6 +123,14 @@ while True:
 
         for i, button_rect in enumerate(buttons):
             pygame.draw.rect(screen, button_colors[i], button_rect)
+            if i == 0:
+                pygame.draw.polygon(screen, background_color, [(button_rect.centerx, button_rect.top + 10), (button_rect.left + 10, button_rect.bottom - 10), (button_rect.right - 10, button_rect.bottom - 10)])
+            elif i == 1:
+                pygame.draw.rect(screen, background_color, button_rect.inflate(-20, -20))
+            elif i == 2:
+                pygame.draw.polygon(screen, background_color, [(button_rect.centerx, button_rect.top + 10), (button_rect.left + 10, button_rect.centery), (button_rect.left + button_size // 3, button_rect.bottom - 10), (button_rect.right - button_size // 3, button_rect.bottom - 10), (button_rect.right - 10, button_rect.centery)])
+            elif i == 3:
+                pygame.draw.circle(screen, background_color, button_rect.center, button_size // 2 - 10)
 
         if controller.is_connected:
             status_text = font.render(f"Current Node: {type(controller.top_node.get_running_node()).__name__}", True, text_color)
