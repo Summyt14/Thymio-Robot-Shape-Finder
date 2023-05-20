@@ -21,7 +21,7 @@ class Align(Node):
 
     def evaluate(self) -> int:
         sensors = self.th[self.first_node]["prox.horizontal"]
-        calibrate_delay = 1000
+        calibrate_delay = 750
 
         # Turn the robot slightly to the left
         

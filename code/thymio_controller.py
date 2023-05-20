@@ -56,7 +56,8 @@ class ThymioController:
         align = Align(self.th, self.first_node, 15)
         backoff = Backoff(self.th, self.first_node, 50, 2500)
         idle_timer = IdleTimer(self.th, self.first_node, 2)
-        align_sequence = Sequence([align, backoff, idle_timer])
+        rotate = Rotate(self.th, self.first_node, 50, 4)
+        align_sequence = Sequence([align, backoff, idle_timer, rotate])
 
         self.top_node = Selector([move_sequence, align_sequence])
 
