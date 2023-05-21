@@ -4,12 +4,12 @@ from thymiodirect import Thymio
 
 class MoveForward(Node):
     """
-    A class representing the exploration of thymio.
+    A class representing a node that handles the exploration of thymio.
 
     Args:
         th (Thymio): The Thymio robot.
         first_node (str): The first node.
-        speed (int) : The speed of the motors
+        speed (int) : The speed of the motors.
     """
 
     def __init__(self, th: Thymio, first_node: str, speed: int) -> None:

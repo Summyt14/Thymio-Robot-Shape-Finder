@@ -1,5 +1,3 @@
-import pygame
-import math
 from camera import Camera
 from behavior_tree.base_nodes import *
 from behavior_tree.nodes import *
@@ -35,15 +33,7 @@ class ThymioController:
         """
         Constructs the behavior tree for the robot.
         """
-        #rotate_robot = MoveRobotTime(self.th, self.first_node, 50, -50, 10.0)
-        #wait = MoveRobotTime(self.th, self.first_node, 0, 0, 2.0)
-        #move_robot_away_obstacle = MoveRobotAwayObstacle(self.th, self.first_node, 100, 3500)
-        #avoid_object_seq = Sequence([move_robot_away_obstacle, rotate_robot])
-        #idle_timer = IdleTimer(self.th, self.first_node, 2)
-        #has_object_front = Inverter(HasObjectInFront(self.th, self.first_node, 4500, 2000))
-        #avoid_fall = Inverter(AvoidFall(self.th, self.first_node, 900))
-
-        obstacle_detected = Inverter(ObstacleDetected(self.th, self.first_node, 2000))
+        obstacle_detected = Inverter(HasDetectedObstacle(self.th, self.first_node, 2000))
         move_forward = MoveForward(self.th, self.first_node, 50)
 
         align = Align(self.th, self.first_node, 15)

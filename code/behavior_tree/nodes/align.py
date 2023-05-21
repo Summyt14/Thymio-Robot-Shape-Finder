@@ -1,16 +1,15 @@
 from behavior_tree.base_nodes.base_node import *
 from thymiodirect import Thymio
-import time
 
 
 class Align(Node):
     """
-    A class representing the alignment with an obstacle of thymio.
+    A class representing a node that handles the alignment with an obstacle.
 
     Args:
         th (Thymio): The Thymio robot.
         first_node (str): The first node.
-        speed (int) : The speed of the motors
+        speed (int) : The speed of the motors.
     """
 
     def __init__(self, th: Thymio, first_node: str, speed: int) -> None:
@@ -24,33 +23,20 @@ class Align(Node):
         calibrate_delay = 850
 
         # Turn the robot slightly to the left
-        
-        if(sensors[1] > sensors[3] + calibrate_delay ):
-                
+        if sensors[1] > sensors[3] + calibrate_delay:
             self.th[self.first_node]["motor.left.target"] = -self.speed
             self.th[self.first_node]["motor.right.target"] = self.speed
-
             self._node_state = RUNNING
         
-        elif(sensors[3] > sensors[1] + calibrate_delay ):
-
+        # Turn the robot slightly to the right
+        elif sensors[3] > sensors[1] + calibrate_delay:
             self.th[self.first_node]["motor.left.target"] = self.speed
             self.th[self.first_node]["motor.right.target"] = -self.speed
-
             self._node_state = RUNNING
-
         else:
-
-
             self._node_state = SUCCESS
 
         return self._node_state
-
-            
-              
-        
-                  
-        
 
     def get_running_node(self) -> Node:
         return self

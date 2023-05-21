@@ -3,7 +3,10 @@ from behavior_tree.base_nodes.base_node import *
 
 class HasDetectedCorrectShape(Node):
     """
-    A class that asks the camera for detected shapes and checks if its the one choosen by the user.
+    A class that represents a node that asks the camera for detected shapes and checks if its the one choosen by the user.
+
+    Args:
+        controller (ThymioController): The controller of the thymio.
     """
 
     def __init__(self, controller: any) -> None:

@@ -6,13 +6,13 @@ import random
 
 class Rotate(Node):
     """
-    A class that handles the rotation of thymio.
+    A class that handles the rotation of the thymio.
 
     Args:
         th (Thymio): The Thymio robot.
         first_node (str): The first node.
-        speed (int) : The speed of the motors
-        duration (int) : the time in seconds of rotation
+        speed (int) : The speed of the motors.
+        duration (int) : The time in seconds of rotation.
     """
 
     def __init__(self, th: Thymio, first_node: str, speed: int, duration: int) -> None:
@@ -26,16 +26,15 @@ class Rotate(Node):
     def evaluate(self) -> int:
         direction = random.randint(0,9)
 
+        # 70% probability of turning to the right
         if direction > 2:
             self.th[self.first_node]["motor.left.target"] = self.speed
             self.th[self.first_node]["motor.right.target"] = -self.speed
-
         else:
             self.th[self.first_node]["motor.left.target"] = -self.speed
             self.th[self.first_node]["motor.right.target"] = self.speed
 
         time.sleep(self.duration)
-        
         return SUCCESS
 
     def get_running_node(self) -> Node:

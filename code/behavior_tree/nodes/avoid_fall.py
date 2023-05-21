@@ -16,8 +16,7 @@ class AvoidFall(Node):
     def evaluate(self) -> int:
         sensors = self.th[self.first_node]["prox.ground.reflected"]
 
-        if (sensors[0] < self.distance 
-                or 0 < sensors[1] < self.distance) :
+        if sensors[0] < self.distance or 0 < sensors[1] < self.distance:
             self.th[self.first_node]["motor.left.target"] = 0
             self.th[self.first_node]["motor.right.target"] = 0
             

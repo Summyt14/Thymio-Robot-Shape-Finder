@@ -5,7 +5,11 @@ import time
 
 class FlashLights(Node):
     """
-    A class that flashes the lights. 
+    A class that represents a node that flashes the lights. 
+
+    Args:
+        th (Thymio): The Thymio robot.
+        first_node (str): The first node.
     """
 
     def __init__(self, th: Thymio, first_node: str) -> None:

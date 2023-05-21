@@ -4,14 +4,13 @@ from thymiodirect import Thymio
 
 class Backoff(Node):
     """
-    A class representing a node makes the thymio back off to a certain distance.
+    A class representing a node that makes the thymio back off to a certain distance.
 
     Args:
         th (Thymio): The Thymio robot.
         first_node (str): The first node.
-        speed (int) : The speed of the motors
-        back_distance (int): distance to where thymio backs off
-    
+        speed (int) : The speed of the motors.
+        back_distance (int): The distance to where thymio backs off
     """
 
     def __init__(self, th: Thymio, first_node: str, speed: int, back_distance: int) -> None:
@@ -26,25 +25,13 @@ class Backoff(Node):
         self.th[self.first_node]["motor.left.target"] = -self.speed
         self.th[self.first_node]["motor.right.target"] = -self.speed
 
-        if (sensors[5] == 0
-            and sensors[6] == 0) :
-
-
-            if (0 < sensors[2] < self.back_distance):
-
+        if sensors[5] == 0 and sensors[6] == 0:
+            if 0 < sensors[2] < self.back_distance:
                 self.th[self.first_node]["motor.left.target"] = 0
                 self.th[self.first_node]["motor.right.target"] = 0
-
-
                 return  SUCCESS
-
-                
-
-
             return RUNNING
-        
         return self._node_state
-       
 
     def get_running_node(self) -> Node:
         return self

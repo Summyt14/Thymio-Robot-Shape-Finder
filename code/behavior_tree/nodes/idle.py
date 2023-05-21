@@ -5,6 +5,10 @@ from thymiodirect import Thymio
 class Idle(Node):
     """
     A class representing a node that is an idle state.
+
+    Args:
+        th (Thymio): The Thymio robot.
+        first_node (str): The first node.
     """
 
     def __init__(self, th: Thymio, first_node: str) -> None:
