@@ -47,7 +47,7 @@ for coord in button_coords:
     buttons.append(button_rect)
 buttons.reverse()
 
-video_ip_text = "192.168.68.110"
+video_ip_text = ""
 camera = Camera(is_debug=True)
 controller = ThymioController(camera)
 controller.connect()
