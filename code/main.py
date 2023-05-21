@@ -47,7 +47,7 @@ for coord in button_coords:
 buttons.reverse()
 
 video_ip_text = "192.168.68.110"
-camera = Camera()
+camera = Camera(is_debug=True)
 controller = ThymioController(camera)
 controller.connect()
 pressed_keys = {}
@@ -109,7 +109,7 @@ while True:
         screen.blit(camera_status_text, (5, 70))
 
     # If the camera is connected, show the next frame
-    elif camera.status in [CONNECTED, DETECTING, DEBUG]:
+    elif camera.status in [CONNECTED, DETECTING, FINISHED, DEBUG]:
         screen.fill(background_color)
 
         # Get and show the original and processed frames from the camera

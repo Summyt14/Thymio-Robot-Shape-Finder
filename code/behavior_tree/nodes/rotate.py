@@ -6,7 +6,7 @@ import random
 
 class Rotate(Node):
     """
-    A class representing the rotation of thymio.
+    A class that handles the rotation of thymio.
 
     Args:
         th (Thymio): The Thymio robot.
@@ -26,7 +26,7 @@ class Rotate(Node):
     def evaluate(self) -> int:
         direction = random.randint(0,9)
 
-        if(direction > 2):
+        if direction > 2:
             self.th[self.first_node]["motor.left.target"] = self.speed
             self.th[self.first_node]["motor.right.target"] = -self.speed
 

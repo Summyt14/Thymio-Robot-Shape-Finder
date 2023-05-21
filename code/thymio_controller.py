@@ -33,38 +33,33 @@ class ThymioController:
         """
         Constructs the behavior tree for the robot.
         """
-        has_detected_correct_shape = HasDetectedCorrectShape(self)
-        make_noise = MakeNoise(self.th, self.first_node)
-        idle = Idle(self.th, self.first_node)
-        shape_detect = Sequence([has_detected_correct_shape, make_noise, idle])
-
-
-        rotate_robot = MoveRobotTime(self.th, self.first_node, 50, -50, 10.0)
-        wait = MoveRobotTime(self.th, self.first_node, 0, 0, 2.0)
-        move_robot_away_obstacle = MoveRobotAwayObstacle(self.th, self.first_node, 100, 3500)
-        avoid_object_seq = Sequence([move_robot_away_obstacle, rotate_robot])
+        #rotate_robot = MoveRobotTime(self.th, self.first_node, 50, -50, 10.0)
+        #wait = MoveRobotTime(self.th, self.first_node, 0, 0, 2.0)
+        #move_robot_away_obstacle = MoveRobotAwayObstacle(self.th, self.first_node, 100, 3500)
+        #avoid_object_seq = Sequence([move_robot_away_obstacle, rotate_robot])
+        #idle_timer = IdleTimer(self.th, self.first_node, 2)
+        #has_object_front = Inverter(HasObjectInFront(self.th, self.first_node, 4500, 2000))
+        #avoid_fall = Inverter(AvoidFall(self.th, self.first_node, 900))
 
         obstacle_detected = Inverter(ObstacleDetected(self.th, self.first_node, 2000))
-        avoid_fall = Inverter(AvoidFall(self.th, self.first_node, 900))
-        obstacle_handling = Selector([shape_detect, avoid_object_seq])
-
-
-        # TODO this node
         move_forward = MoveForward(self.th, self.first_node, 50)
-        has_object_front = Inverter(HasObjectInFront(self.th, self.first_node, 4500, 2000))
-        move_sequence = Sequence([obstacle_detected, move_forward])
-        
-        
+
         align = Align(self.th, self.first_node, 15)
         backoff = Backoff(self.th, self.first_node, 50, 2500)
-        idle_timer = IdleTimer(self.th, self.first_node, 2)
+
         rotate = Rotate(self.th, self.first_node, 50, 4)
-        align_sequence = Sequence([align, backoff, idle_timer, rotate])
 
-        test = Sequence([rotate])
+        has_detected_correct_shape = HasDetectedCorrectShape(self)
+        flash_lights = FlashLights(self.th, self.first_node)
+        idle = Idle(self.th, self.first_node)
 
+
+        shape_detect = Sequence([has_detected_correct_shape, flash_lights, idle])
+        obstacle_handling = Selector([shape_detect, rotate])
+        align_sequence = Sequence([align, backoff, obstacle_handling])
+        move_sequence = Sequence([obstacle_detected, move_forward])
         self.top_node = Selector([move_sequence, align_sequence])
-        #self.top_node = Selector([test])
+
 
     def connect(self) -> bool:
         """

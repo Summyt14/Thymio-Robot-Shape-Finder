@@ -21,8 +21,12 @@ class Camera:
         CONNECTED (str): A string constant representing the connected status.
         CONNECTING (str): A string constant representing the connecting status.
         ERROR (str): A string constant representing the error status.
+    
+    Args:
+        is_debug (bool): Start camera in debug mode.
     """
-    def __init__(self) -> None:
+    def __init__(self, is_debug: bool = False) -> None:
+        self.is_debug = is_debug
         self.video_url = ""
         self.status = DISCONNECTED
         self.original_frame = None
@@ -66,7 +70,7 @@ class Camera:
 
         for contour in contours:
             area = cv2.contourArea(contour)
-            if area < 1000 or area > 150000:
+            if area < 100 or area > 150000:
                 continue
 
             cv2.drawContours(frame, [contour], -1, (255, 0, 0), 5)
@@ -97,7 +101,8 @@ class Camera:
             # Overlay the rotated text onto the original image
             frame = cv2.add(frame, rotated_text_img)
 
-        self.status = FINISHED
+        if self.status != DEBUG:
+            self.status = FINISHED
         return frame, thresh
 
     def run_thread(self, video_url: str):
@@ -113,6 +118,8 @@ class Camera:
             return
 
         self.status = CONNECTED
+        if self.is_debug:
+            self.status = DEBUG
         while True:
             ret, frame = cap.read()
             if not ret or self.status == DISCONNECTED or self.status == ERROR:

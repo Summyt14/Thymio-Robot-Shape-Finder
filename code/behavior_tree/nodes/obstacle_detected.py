@@ -21,8 +21,6 @@ class ObstacleDetected(Node):
                 or (0 < sensors[2] > self.distance_check) \
                 or (0 < sensors[3] > self.distance_check) \
                 or (0 < sensors[4] > self.distance_check):
-            
-            
             return SUCCESS
             
         else:
