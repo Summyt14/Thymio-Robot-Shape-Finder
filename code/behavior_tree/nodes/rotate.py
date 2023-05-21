@@ -1,6 +1,7 @@
 from behavior_tree.base_nodes.base_node import *
 from thymiodirect import Thymio
 import time
+import random
 
 
 class Rotate(Node):
@@ -23,8 +24,15 @@ class Rotate(Node):
 
 
     def evaluate(self) -> int:
-        self.th[self.first_node]["motor.left.target"] = self.speed
-        self.th[self.first_node]["motor.right.target"] = -self.speed
+        direction = random.randint(0,9)
+
+        if(direction > 2):
+            self.th[self.first_node]["motor.left.target"] = self.speed
+            self.th[self.first_node]["motor.right.target"] = -self.speed
+
+        else:
+            self.th[self.first_node]["motor.left.target"] = -self.speed
+            self.th[self.first_node]["motor.right.target"] = self.speed
 
         time.sleep(self.duration)
         

@@ -19,9 +19,12 @@ class MoveForward(Node):
         self.speed = speed
 
     def evaluate(self) -> int:
+        sensors = self.th[self.first_node]["prox.horizontal"]
         self.th[self.first_node]["motor.left.target"] = self.speed
         self.th[self.first_node]["motor.right.target"] = self.speed
-        return RUNNING
 
+        
+        return RUNNING
+    
     def get_running_node(self) -> Node:
         return self

@@ -45,6 +45,7 @@ class ThymioController:
         avoid_object_seq = Sequence([move_robot_away_obstacle, rotate_robot])
 
         obstacle_detected = Inverter(ObstacleDetected(self.th, self.first_node, 2000))
+        avoid_fall = Inverter(AvoidFall(self.th, self.first_node, 900))
         obstacle_handling = Selector([shape_detect, avoid_object_seq])
 
 
@@ -60,10 +61,10 @@ class ThymioController:
         rotate = Rotate(self.th, self.first_node, 50, 4)
         align_sequence = Sequence([align, backoff, idle_timer, rotate])
 
-        avoid_fall = AvoidFall
+        test = Sequence([rotate])
 
         self.top_node = Selector([move_sequence, align_sequence])
-        #self.top_node = Selector([move_sequence, align_sequence])
+        #self.top_node = Selector([test])
 
     def connect(self) -> bool:
         """
