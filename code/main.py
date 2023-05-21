@@ -1,6 +1,6 @@
 import os
 import importlib
-from importlib import util
+from math import sin, cos, pi
 
 # Install the required libraries if they are not in the system yet
 if importlib.util.find_spec("cv2") is None:
@@ -37,6 +37,7 @@ button_coords = [(window_size[0] - 130, window_size[1] - 130),
                  (window_size[0] - 260, window_size[1] - 260), 
                  (window_size[0] - 390, window_size[1] - 260)]
 default_color = (200, 200, 200)
+shape_color = (0, 0, 200)
 selected_color = (0, 130, 0)
 buttons = []
 selected_button_index = None
@@ -52,6 +53,10 @@ controller = ThymioController(camera)
 controller.connect()
 pressed_keys = {}
 
+def draw_regular_polygon(surface, color, vertex_count, radius, position, width=0):
+    n, r = vertex_count, radius
+    x, y = position
+    pygame.draw.polygon(surface, color, [(x + r * cos(2 * pi * i / n), y + r * sin(2 * pi * i / n)) for i in range(n)], width)
 
 def handle_inputs():
     global video_ip_text, selected_button_index
@@ -123,14 +128,23 @@ while True:
 
         for i, button_rect in enumerate(buttons):
             pygame.draw.rect(screen, button_colors[i], button_rect)
-            if i == 0:
-                pygame.draw.polygon(screen, background_color, [(button_rect.centerx, button_rect.top + 10), (button_rect.left + 10, button_rect.bottom - 10), (button_rect.right - 10, button_rect.bottom - 10)])
-            elif i == 1:
-                pygame.draw.rect(screen, background_color, button_rect.inflate(-20, -20))
-            elif i == 2:
-                pygame.draw.polygon(screen, background_color, [(button_rect.centerx, button_rect.top + 10), (button_rect.left + 10, button_rect.centery), (button_rect.left + button_size // 3, button_rect.bottom - 10), (button_rect.right - button_size // 3, button_rect.bottom - 10), (button_rect.right - 10, button_rect.centery)])
-            elif i == 3:
-                pygame.draw.circle(screen, background_color, button_rect.center, button_size // 2 - 10)
+            if i == 4:
+                factor = 5
+                pygame.draw.polygon(screen, shape_color, 
+                      [(button_rect.centerx - (35 // factor), button_rect.centery - (49 // factor)),
+                       (button_rect.centerx - (0 // factor), button_rect.centery - (180 // factor)),
+                       (button_rect.centerx + (35 // factor), button_rect.centery - (49 // factor)),
+                       (button_rect.centerx + (171 // factor), button_rect.centery - (56 // factor)),
+                       (button_rect.centerx + (57 // factor), button_rect.centery + (19 // factor)),
+                       (button_rect.centerx + (106 // factor), button_rect.centery + (146 // factor)),
+                       (button_rect.centerx + (0 // factor), button_rect.centery + (60 // factor)),
+                       (button_rect.centerx - (106 // factor), button_rect.centery + (146 // factor)),
+                       (button_rect.centerx - (57 // factor), button_rect.centery + (19 // factor)),
+                       (button_rect.centerx - (171 // factor), button_rect.centery - (56 // factor))], 5)
+            elif i == 5:
+                pygame.draw.circle(screen, shape_color, button_rect.center, button_size // 2 - 20)
+            else:
+                draw_regular_polygon(screen, shape_color, i + 3, min(button_size, button_size) / 3, (button_rect.centerx, button_rect.centery), 5)
 
         if controller.is_connected:
             status_text = font.render(f"Current Node: {type(controller.top_node.get_running_node()).__name__}", True, text_color)

@@ -18,7 +18,7 @@ class HasDetectedCorrectShape(Node):
             print(f"Selected: {self.controller.desired_shape}, Detected: {self.controller.camera.detected_shapes}")
             if len(self.controller.camera.detected_shapes) == 0:
                 return FAILURE
-            if self.controller.camera.detected_shapes[0] == self.controller.desired_shape:
+            if self.controller.desired_shape in self.controller.camera.detected_shapes:
                 return SUCCESS
             else:
                 return FAILURE

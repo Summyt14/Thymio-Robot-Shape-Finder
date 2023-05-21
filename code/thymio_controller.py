@@ -9,6 +9,8 @@ from thymiodirect import Connection, Thymio
 TRIANGLE = "Triangle"
 RECTANGLE = "Rectangle"
 PENTAGON = "Pentagon"
+HEXAGON = "Hexagon"
+STAR = "Star"
 CIRCLE = "Circle"
 
 
@@ -96,6 +98,10 @@ class ThymioController:
         elif button_index == 2:
             self.desired_shape = PENTAGON
         elif button_index == 3:
+            self.desired_shape = HEXAGON
+        elif button_index == 4:
+            self.desired_shape = STAR
+        elif button_index == 5:
             self.desired_shape = CIRCLE
 
     def disconnect(self) -> None:

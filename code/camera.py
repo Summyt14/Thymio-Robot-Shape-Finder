@@ -60,46 +60,23 @@ class Camera:
         gray =  cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         blurred = cv2.GaussianBlur(gray, (5, 5), 0)
         thresh = cv2.threshold(blurred, 60, 255, cv2.THRESH_BINARY)[1]
+        thresh = (255 - thresh)
 
         if self.status not in [DETECTING, DEBUG]:
             return frame, thresh
 
         contours, _ = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-
         self.detected_shapes.clear()
 
         for contour in contours:
             area = cv2.contourArea(contour)
-            if area < 100 or area > 150000:
+            if area < 4000 or area > 30000:
                 continue
 
-            cv2.drawContours(frame, [contour], -1, (255, 0, 0), 5)
-            x = y = 0
-            # finding center point of shape
-            M = cv2.moments(contour)
-            if M['m00'] != 0.0:
-                x = int(M["m10"] / M["m00"])
-                y = int(M["m01"] / M["m00"])
-
-            # find number of edges
-            epsilon = 0.04 * cv2.arcLength(contour, True)
-            approx = cv2.approxPolyDP(contour, epsilon, True)
-            edges = len(approx)
-            shape_name = self.get_shape_name(edges)
+            shape_name = self.get_shape_name(contour)
             self.detected_shapes.append(shape_name)
 
-            # Create a separate image for the text
-            text_img = np.zeros_like(frame)
-            cv2.putText(text_img, shape_name, (y, x), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 0, 0), 2)
-            # Mirror the text image horizontally
-            mirrored_text_img = cv2.flip(text_img, 1)
-            # Rotate the text by 90 degrees
-            rows, cols, _ = mirrored_text_img.shape
-            M = cv2.getRotationMatrix2D((cols / 2, rows / 2), 90, 1)
-            rotated_text_img = cv2.warpAffine(mirrored_text_img, M, (cols, rows))
-
-            # Overlay the rotated text onto the original image
-            frame = cv2.add(frame, rotated_text_img)
+            cv2.drawContours(frame, [contour], -1, (0, 0, 255), 5)
 
         if self.status != DEBUG:
             self.status = FINISHED
@@ -136,7 +113,7 @@ class Camera:
                 self.original_frame = pygame.surfarray.make_surface(original_frame)
                 self.processed_frame = pygame.surfarray.make_surface(processed_frame)
 
-    def get_shape_name(self, edges: int) -> str:
+    def get_shape_name(self, contour) -> str:
         """
         Returns the name of a shape given the number of edges.
 
@@ -145,12 +122,21 @@ class Camera:
         Returns:
             str: The name of the shape.
         """
+        # find number of edges
+        epsilon = 0.04 * cv2.arcLength(contour, True)
+        approx = cv2.approxPolyDP(contour, epsilon, True)
+        edges = len(approx)
+
         if edges == 3:
             return "Triangle"
         elif edges == 4:
             return "Rectangle"
         elif edges == 5:
             return "Pentagon"
+        elif edges == 6:
+            return "Hexagon"
+        elif edges == 10:
+            return "Star"
         else:
             return "Circle"
 
